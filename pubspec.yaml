@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^8.1.6
   equatable: ^2.0.5
+  http: ^1.5.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -65,19 +66,19 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    - assets/img.png # Directory containing image assets
-    - assets/img_1.png # Directory containing image assets
-    - assets/img_2.png # Directory containing image assets
-    - assets/img_3.png # Directory containing image assets
-    - assets/img_4.png # Directory containing image assets
-    - assets/img_5.png # Directory containing image assets
-    - assets/img_6.png # Directory containing image assets
-    - assets/img_7.png # Directory containing image assets
-    - assets/img_8.png # Directory containing image assets
-    - assets/img_9.png # Directory containing image assets
-    - assets/img_10.png # Directory containing image assets
-    - assets/img_11.png # Directory containing image assets
+#  assets:
+#    - assets/img.png # Directory containing image assets
+#    - assets/img_1.png # Directory containing image assets
+#    - assets/img_2.png # Directory containing image assets
+#    - assets/img_3.png # Directory containing image assets
+#    - assets/img_4.png # Directory containing image assets
+#    - assets/img_5.png # Directory containing image assets
+#    - assets/img_6.png # Directory containing image assets
+#    - assets/img_7.png # Directory containing image assets
+#    - assets/img_8.png # Directory containing image assets
+#    - assets/img_9.png # Directory containing image assets
+#    - assets/img_10.png # Directory containing image assets
+#    - assets/img_11.png # Directory containing image assets
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
