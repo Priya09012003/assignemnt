@@ -17,11 +17,25 @@ class PostDetailScreen extends StatelessWidget {
       create: (_) => PostBloc(Repository())..add(FetchPostDetail(postId)),
       child: Scaffold(
         backgroundColor: AppColors.white,
-        appBar: AppBar(title: const Text('Post Detail')),
+        appBar: AppBar(
+          title: const Text('Post Detail'),
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          elevation: 2,
+        ),
         body: BlocBuilder<PostBloc, PostState>(
           builder: (context, state) {
             if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Loading post details...', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                  ],
+                ),
+              );
             } else if (state.postDetail != null) {
               final post = state.postDetail!;
               return Padding(
@@ -36,7 +50,41 @@ class PostDetailScreen extends StatelessWidget {
                 ),
               );
             } else if (state.errorMessage != null) {
-              return Center(child: Text(state.errorMessage!));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error',
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        state.errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<PostBloc>().add(FetchPostDetail(postId));
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              );
             }
             return const SizedBox();
           },

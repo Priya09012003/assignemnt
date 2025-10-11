@@ -38,15 +38,29 @@ class PostCard extends StatelessWidget {
                     if (title != null) ...[
                       Text(
                         title!,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold, 
+                          fontSize: 16, 
+                          color: Colors.black87
+                        ),
                       ),
                       const SizedBox(height: 4),
                     ],
-                    Text(subtitle, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4)),
+                    Text(
+                      subtitle, 
+                      style: const TextStyle(
+                        fontSize: 14, 
+                        color: Colors.black87, 
+                        height: 1.4
+                      )
+                    ),
                   ],
                 ),
               ),
-              if (trailing != null) ...[const SizedBox(width: 10), trailing!],
+              if (trailing != null) ...[
+                const SizedBox(width: 10), 
+                trailing!
+              ],
             ],
           ),
         ),

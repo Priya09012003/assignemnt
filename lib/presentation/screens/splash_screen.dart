@@ -4,27 +4,27 @@ import 'package:practice_assignment/config/routes/routes_name.dart';
 import '../../core/theme/colors.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
-  late AnimationController _pawController;
-  late Animation<double> _pawAnimation;
+  late AnimationController _logoController;
+  late Animation<double> _logoAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    // Paw bounce animation
-    _pawController = AnimationController(duration: const Duration(seconds: 1), vsync: this)..repeat(reverse: true);
+    // Logo bounce animation
+    _logoController = AnimationController(duration: const Duration(seconds: 1), vsync: this)..repeat(reverse: true);
 
-    _pawAnimation = Tween<double>(
+    _logoAnimation = Tween<double>(
       begin: 0,
       end: -15,
-    ).animate(CurvedAnimation(parent: _pawController, curve: Curves.easeInOut));
+    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeInOut));
 
     // Navigate after 3 seconds
     Timer(const Duration(seconds: 3), () {
@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   void dispose() {
-    _pawController.dispose();
+    _logoController.dispose();
     super.dispose();
   }
 
@@ -47,11 +47,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AnimatedBuilder(
-              animation: _pawAnimation,
+              animation: _logoAnimation,
               builder: (context, child) {
-                return Transform.translate(offset: Offset(0, _pawAnimation.value), child: child);
+                return Transform.translate(offset: Offset(0, _logoAnimation.value), child: child);
               },
-              child: Icon(Icons.pets, size: 100, color: AppColors.primaryBrown),
+              child: Icon(Icons.home, size: 100, color: AppColors.primaryBrown),
             ),
             const SizedBox(height: 20),
             TweenAnimationBuilder<double>(
@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 return Opacity(opacity: value, child: child);
               },
               child: Text(
-                "PetCare+",
+                "MyApp",
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
@@ -77,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               builder: (context, value, child) {
                 return Opacity(opacity: value, child: child);
               },
-              child: const Text("Your pet’s happy place 🐶🐱", style: TextStyle(fontSize: 16, color: Colors.brown)),
+              child: const Text("Welcome to MyApp", style: TextStyle(fontSize: 16, color: Colors.brown)),
             ),
           ],
         ),
