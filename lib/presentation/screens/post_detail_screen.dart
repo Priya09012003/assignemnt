@@ -1,92 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:practice_assignment/core/theme/colors.dart';
 import '../../repository/post_repo.dart';
 import '../bloc/bloc.dart';
 import '../bloc/event.dart';
 import '../bloc/state.dart';
-import '../widgets/item_card.dart';
 
 class PostDetailScreen extends StatelessWidget {
   final int postId;
-  const PostDetailScreen({required this.postId, super.key});
+  const PostDetailScreen({super.key, required this.postId});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => PostBloc(Repository())..add(FetchPostDetail(postId)),
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: const Color(0xFFF5F6FA),
         appBar: AppBar(
-          title: const Text('Post Detail'),
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          elevation: 2,
+          title: const Text("Post Detail"),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
         ),
         body: BlocBuilder<PostBloc, PostState>(
           builder: (context, state) {
             if (state.isLoading) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('Loading post details...', style: TextStyle(fontSize: 16, color: Colors.grey)),
-                  ],
-                ),
-              );
-            } else if (state.postDetail != null) {
-              final post = state.postDetail!;
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: PostCard(
-                  //title: post.title ?? "No Title",
-                  subtitle: post.body ?? "No content available",
-                  backgroundColor: AppColors.white,
-                  onTap: () {
-                    context.read<PostBloc>().add(MarkAsRead(post.id ?? 0));
-                  },
-                ),
-              );
-            } else if (state.errorMessage != null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state.errorMessage != null) {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Error',
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Text(
-                        state.errorMessage!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<PostBloc>().add(FetchPostDetail(postId));
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      ),
-                    ),
-                  ],
-                ),
+                child: Text(state.errorMessage!, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               );
             }
-            return const SizedBox();
+
+            final post = state.postDetail;
+
+            if (post == null) {
+              return const Center(
+                child: Text("No data available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              );
+            }
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title Section
+                  Text(
+                    post.title ?? "",
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, height: 1.3),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Card for description/body
+                  Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Text(
+                        post.body ?? "",
+                        style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
+              ),
+            );
           },
         ),
       ),

@@ -9,51 +9,37 @@ class NetworkStatusWidget extends StatefulWidget {
 }
 
 class _NetworkStatusWidgetState extends State<NetworkStatusWidget> {
-  bool _isOnline = true;
+  bool isOnline = true;
 
   @override
   void initState() {
     super.initState();
-    _checkConnectivity();
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+    _initConnectivity();
+
+    Connectivity().onConnectivityChanged.listen((result) {
       setState(() {
-        _isOnline = result != ConnectivityResult.none;
+        isOnline = result != ConnectivityResult.none;
       });
     });
   }
 
-  Future<void> _checkConnectivity() async {
+  Future<void> _initConnectivity() async {
     final result = await Connectivity().checkConnectivity();
     setState(() {
-      _isOnline = result != ConnectivityResult.none;
+      isOnline = result != ConnectivityResult.none;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: _isOnline ? Colors.green : Colors.red,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(color: isOnline ? Colors.green : Colors.red, borderRadius: BorderRadius.circular(16)),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            _isOnline ? Icons.wifi : Icons.wifi_off,
-            color: Colors.white,
-            size: 16,
-          ),
+          Icon(isOnline ? Icons.wifi : Icons.wifi_off, size: 14, color: Colors.white),
           const SizedBox(width: 4),
-          Text(
-            _isOnline ? 'Online' : 'Offline',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(isOnline ? "Online" : "Offline", style: const TextStyle(fontSize: 12, color: Colors.white)),
         ],
       ),
     );

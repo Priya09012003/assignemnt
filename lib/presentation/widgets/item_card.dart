@@ -1,67 +1,54 @@
 import 'package:flutter/material.dart';
 
 class PostCard extends StatelessWidget {
-  final String? title;
+  final String title;
   final String subtitle;
+  final String timerText;
   final Color backgroundColor;
   final VoidCallback? onTap;
-  final Widget? trailing;
 
   const PostCard({
     super.key,
-    this.title,
+    required this.title,
     required this.subtitle,
-    this.backgroundColor = const Color(0xFFFFFACD),
+    required this.timerText,
+    required this.backgroundColor,
     this.onTap,
-    this.trailing,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      color: backgroundColor,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (title != null) ...[
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Material(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                      const SizedBox(height: 6),
                       Text(
-                        title!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 16, 
-                          color: Colors.black87
-                        ),
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 13, color: Colors.black87),
                       ),
-                      const SizedBox(height: 4),
                     ],
-                    Text(
-                      subtitle, 
-                      style: const TextStyle(
-                        fontSize: 14, 
-                        color: Colors.black87, 
-                        height: 1.4
-                      )
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              if (trailing != null) ...[
-                const SizedBox(width: 10), 
-                trailing!
+                const SizedBox(width: 12),
+                Text(timerText, style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
-            ],
+            ),
           ),
         ),
       ),

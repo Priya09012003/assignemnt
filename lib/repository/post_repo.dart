@@ -1,103 +1,90 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
-import 'package:practice_assignment/data/model.dart';
-import 'package:practice_assignment/data/local_storage_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
+import '../data/model.dart';
+import '../data/local_storage_service.dart';
+
 class Repository {
-  final String baseUrl = 'https://jsonplaceholder.typicode.com/posts';
-  final int _timeoutSeconds = 10;
+  final String baseUrl = "https://jsonplaceholder.typicode.com/posts";
+  final int timeoutSec = 10;
 
+  /// Fetch all posts (online → sync → save local, offline → load local)
   Future<List<DataModel>> getPosts() async {
-    try {
-      final connectivityResult = await Connectivity().checkConnectivity();
-      final isOnline = connectivityResult != ConnectivityResult.none;
-      print(' Network Status: ${isOnline ? "ONLINE" : "OFFLINE"}');
+    final isOnline = await _checkInternet();
+    final cached = await LocalStorageService.loadPosts();
 
-      List<DataModel>? localPosts = await LocalStorageService.loadPosts();
-      print('Local Posts Found: ${localPosts?.length ?? 0}');
-
-      if (isOnline) {
-        try {
-          final response = await http.get(Uri.parse(baseUrl)).timeout(Duration(seconds: _timeoutSeconds));
-          if (response.statusCode == 200) {
-            final List<dynamic> data = json.decode(response.body);
-            final apiPosts = data.map((e) => DataModel.fromJson(e)).toList();
-            print(' API Posts Fetched: ${apiPosts.length}');
-
-            final mergedPosts = _mergePostsWithLocalData(apiPosts, localPosts);
-            await LocalStorageService.savePosts(mergedPosts);
-            print(' Posts Saved to Local Storage');
-            return mergedPosts;
-          } else {
-            throw Exception('Failed to fetch posts: ${response.statusCode}');
-          }
-        } catch (e) {
-          print(' API Error, falling back to local data');
-          if (localPosts != null && localPosts.isNotEmpty) {
-            print(' Using Local Data: ${localPosts.length} posts');
-            return localPosts;
-          }
-          throw Exception('Network error: Unable to fetch posts. Please check your internet connection.');
-        }
-      } else {
-        print(' Offline Mode - Using Local Data');
-        if (localPosts != null && localPosts.isNotEmpty) {
-          print(' Local Posts Available: ${localPosts.length}');
-          return localPosts;
-        }
-        throw Exception(
-          'No internet connection and no cached data available. Please connect to the internet to load posts.',
-        );
+    if (!isOnline) {
+      if (cached != null && cached.isNotEmpty) {
+        return cached;
       }
+      throw Exception("No internet and no local data available.");
+    }
+
+    // Online mode
+    try {
+      final response = await http.get(Uri.parse(baseUrl)).timeout(Duration(seconds: timeoutSec));
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to load posts");
+      }
+
+      final List list = jsonDecode(response.body);
+      final apiPosts = list.map((e) => DataModel.fromJson(e)).toList();
+
+      // Merge read + timer states from local cache
+      final merged = _mergeLocal(apiPosts, cached);
+
+      await LocalStorageService.savePosts(merged);
+
+      return merged;
     } catch (e) {
-      throw Exception('Error fetching posts: $e');
+      // Fallback to cache
+      if (cached != null && cached.isNotEmpty) {
+        return cached;
+      }
+      throw Exception("Unable to fetch posts. Check your internet.");
     }
   }
 
-  List<DataModel> _mergePostsWithLocalData(List<DataModel> apiPosts, List<DataModel>? localPosts) {
-    if (localPosts == null) return apiPosts;
+  /// Fetch a single post detail
+  Future<DataModel> getPostDetail(int id) async {
+    final isOnline = await _checkInternet();
 
-    final localPostsMap = {for (var post in localPosts) post.id: post};
+    if (!isOnline) {
+      throw Exception("You are offline. Please connect to view details.");
+    }
 
-    return apiPosts.map((apiPost) {
-      final localPost = localPostsMap[apiPost.id];
-      if (localPost != null) {
-        return DataModel(
-          id: apiPost.id,
-          userId: apiPost.userId,
-          title: apiPost.title,
-          body: apiPost.body,
-          isRead: localPost.isRead,
-          timer: localPost.timer,
-        );
+    try {
+      final response = await http.get(Uri.parse("$baseUrl/$id")).timeout(Duration(seconds: timeoutSec));
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to load post");
       }
-      return apiPost;
-    }).toList();
+
+      return DataModel.fromJson(jsonDecode(response.body));
+    } catch (e) {
+      throw Exception("Unable to load post detail.");
+    }
   }
 
-  Future<DataModel> getPostDetail(int postId) async {
-    try {
-      final connectivityResult = await Connectivity().checkConnectivity();
-      final isOnline = connectivityResult != ConnectivityResult.none;
+  /// Merge isRead + timer from local cache
+  List<DataModel> _mergeLocal(List<DataModel> api, List<DataModel>? local) {
+    if (local == null) return api;
 
-      if (isOnline) {
-        try {
-          final response = await http.get(Uri.parse('$baseUrl/$postId')).timeout(Duration(seconds: _timeoutSeconds));
-          if (response.statusCode == 200) {
-            return DataModel.fromJson(json.decode(response.body));
-          } else {
-            throw Exception('Failed to fetch post details: ${response.statusCode}');
-          }
-        } catch (e) {
-          throw Exception('Network error: Unable to fetch post details. Please check your internet connection.');
-        }
-      } else {
-        throw Exception('No internet connection. Please connect to the internet to view post details.');
-      }
-    } catch (e) {
-      throw Exception('Error fetching post details: $e');
+    for (var i = 0; i < api.length; i++) {
+      final match = local.firstWhere((p) => p.id == api[i].id, orElse: () => api[i]);
+
+      api[i].isRead = match.isRead;
+      api[i].timer = match.timer;
     }
+
+    return api;
+  }
+
+  /// Check connectivity
+  Future<bool> _checkInternet() async {
+    final result = await Connectivity().checkConnectivity();
+    return result != ConnectivityResult.none;
   }
 }
